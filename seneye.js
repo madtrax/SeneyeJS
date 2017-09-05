@@ -1,11 +1,12 @@
 /**
  *  Author: Mathieu Dardenne
  */
-var usb      = require('usb');
+var usb      = require('node-hid');
 var Bitfield = require('bitfield');
 
 var SENEYE_VENDOR_ID  = 9463;
 var SENEYE_PRODUCT_ID = 8708;
+var TO_HEX_INT_ARR    = str => str.split('').map(t => { return t.charCodeAt(0); });
 
 var readBits = function(bitfield, offset, size) {
 	var bits = "";
@@ -26,14 +27,13 @@ var SeneyeJS = function() {
 		var code = buf.readUIntLE(1, 1);
 
 		if (action == 136 && code == 1) {
-			if (code == 1)
-				onStart(_self, parseHello(buf));
-		} else if (action == 0 && (code == 1)) {
+			onStart(_self, parseHello(buf));
+		} else if (action == 0 && code == 1) {
 			onRead(_self, parseReading(buf));
+		} else if (action == 0 && code == 2) {
 		} else if (action == 119 && code == 1) {
 			parseGoodbye(buf);
 		}
-
 	};
 
 	var onError = function(d) {
@@ -42,9 +42,7 @@ var SeneyeJS = function() {
 	};
 
 	var writeData = function(data) {
-		out0.transfer(data, e => {
-			if (e) console.log(e);
-		});
+		device.write(data);
 	};
 
 	var parseReading = function(buf) {
@@ -104,9 +102,7 @@ var SeneyeJS = function() {
 	};
 
 	var parseGoodbye = function(buff) {
-		in0.stopPoll(t => {
-			device.close();
-		});
+		device.close();
 	};
 
 	var onEnd = function(d) {
@@ -114,16 +110,17 @@ var SeneyeJS = function() {
 	};
 
 	this.goodbye = function() {
-		writeData('BYESUD');
+		writeData(TO_HEX_INT_ARR("BYESUD"));
 	};
 
 	this.reading = function() {
-		writeData('READING');
+		writeData(TO_HEX_INT_ARR("READING"));
 	};
 
 	this.start = function(cbStart, cbRead, cbClose) {
 
-		device  = usb.findByIds(SENEYE_VENDOR_ID, SENEYE_PRODUCT_ID);
+		device  = new usb.HID(SENEYE_VENDOR_ID, SENEYE_PRODUCT_ID);
+
 		onStart = cbStart;
 		onRead  = cbRead;
 		onClose = cbClose;
@@ -133,31 +130,11 @@ var SeneyeJS = function() {
 			return 1;
 		}
 
-		var fd = device.open();
+		device.on('data',  onData);
+		device.on('error', onError);
+		device.on('end',   onEnd);
 
-		device.setConfiguration(1, t => {
-			if (t) console.log(t);
-		});
-
-		var interface = device.interface(0);
-
-		if (interface.isKernelDriverActive()) {
-			driverAttached = true
-			interface.detachKernelDriver()
-		}
-
-		interface.claim();
-
-		in0 = interface.endpoints[0];
-		out0 = interface.endpoints[1];
-
-		in0.on('data', onData);
-		in0.on('error', onError);
-		in0.on('end', onEnd);
-
-		in0.startPoll(3, 64);
-
-		writeData("HELLOSUD");
+		writeData(TO_HEX_INT_ARR("HELLOSUD"));
 	};
 
 	return this;
