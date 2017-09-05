@@ -2,10 +2,15 @@
 
 Quick way to read data from a Seneye Montior over USB (Compatible with Arduino, MacOSX etc...)
 
-## Output example
+## Example
 
 ```js
-{ type: 'Reef', version: 2.0016 }
+new Seneye().on('complete', handleData).read();
+```
+
+#### Example
+
+```js
 { timestamp: 1504597825,
   bits: 
    { inWater: 1,
