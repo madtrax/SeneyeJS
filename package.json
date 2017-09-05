@@ -1,0 +1,33 @@
+{
+  "name": "seneyejs",
+  "version": "0.0.1",
+  "description": "Read data from a Seneye Monitor over USB",
+  "main": "seneye.js",
+  "dependencies": {
+    "bit-buffer": "^0.2.0",
+    "bitfield": "^1.1.2",
+    "usb": "^1.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node seneye.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/madtrax/SeneyeJS.git"
+  },
+  "keywords": [
+    "seneye",
+    "usb",
+    "reef",
+    "aquarium",
+    "par",
+    "lux"
+  ],
+  "author": "Mathieu DARDENNE",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/madtrax/SeneyeJS/issues"
+  },
+  "homepage": "https://github.com/madtrax/SeneyeJS#readme"
+}
