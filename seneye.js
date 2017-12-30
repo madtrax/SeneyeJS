@@ -3,7 +3,7 @@
  */
 var usb      = require('node-hid');
 var Bitfield = require('bitfield');
-var events 	 = require('events');
+var events   = require('events');
 
 var SENEYE_VENDOR_ID  = 9463;
 var SENEYE_PRODUCT_ID = 8708;
